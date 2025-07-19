@@ -1,0 +1,30 @@
+kind: pipeline
+type: docker
+name: kopia-deploy
+
+steps:
+  - name: deploy
+    image: docker:latest
+    commands:
+      - docker compose down || true
+      - docker compose pull
+      - docker compose up -d
+    environment:
+      KOPIA_SERVER_PASSWORD:
+        from_secret: KOPIA_SERVER_PASSWORD
+      KOPIA_REPO_PASSWORD:
+        from_secret: KOPIA_REPO_PASSWORD
+    # volumes:
+    #   - name: docker
+    #     path: /var/run/docker.sock
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+# volumes:
+#   - name: docker
+#     host:
+#       path: /var/run/docker.sock
+
