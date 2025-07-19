@@ -9,22 +9,17 @@ steps:
       - docker compose down || true
       - docker compose pull
       - docker compose up -d
+      - sleep 10
+      - docker exec kopia kopia repository status --path=/repository || docker exec kopia kopia repository create filesystem --path=/repository
     environment:
       KOPIA_SERVER_PASSWORD:
         from_secret: KOPIA_SERVER_PASSWORD
       KOPIA_REPO_PASSWORD:
         from_secret: KOPIA_REPO_PASSWORD
-    # volumes:
-    #   - name: docker
-    #     path: /var/run/docker.sock
 
 trigger:
   branch:
     - main
   event:
     - push
-# volumes:
-#   - name: docker
-#     host:
-#       path: /var/run/docker.sock
 
