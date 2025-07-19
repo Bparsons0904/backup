@@ -22,7 +22,7 @@ services:
       - ./cache:/app/cache
       - ./logs:/app/logs
       - /mnt/nas-direct/backups:/repository
-      - /home/server/backup:/data/home:ro
+      - /home/server:/data/home:ro
       - /var/lib/docker/volumes:/data/docker-volumes:ro
       - /etc:/data/etc:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -42,4 +42,3 @@ networks:
     external: true
   kopia:
     driver: bridge
-
