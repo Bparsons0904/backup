@@ -10,7 +10,7 @@ steps:
       - docker compose pull
       - docker compose up -d
       - sleep 10
-      - docker exec kopia kopia repository status --path=/repository || docker exec kopia kopia repository create filesystem --path=/repository
+      # - docker exec kopia kopia repository status --path=/repository || docker exec kopia kopia repository create filesystem --path=/repository
     environment:
       KOPIA_SERVER_PASSWORD:
         from_secret: KOPIA_SERVER_PASSWORD
@@ -22,4 +22,3 @@ trigger:
     - main
   event:
     - push
-
