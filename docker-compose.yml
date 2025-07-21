@@ -10,8 +10,8 @@ services:
       - start
       - --insecure
       - --address=0.0.0.0:51515
-      - --server-username=admin
-      - --server-password=${KOPIA_SERVER_PASSWORD}
+      # - --server-username=admin
+      # - --server-password=${KOPIA_SERVER_PASSWORD}
       - --override-hostname=backup-server
     environment:
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
