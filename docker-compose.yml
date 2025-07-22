@@ -10,7 +10,7 @@ services:
     command:
       - server
       - start
-      - --insecure
+      # - --insecure
       - --address=0.0.0.0:51515
       - --server-username=admin
       - --server-password=${KOPIA_SERVER_PASSWORD}
