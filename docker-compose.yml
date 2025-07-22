@@ -30,11 +30,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.kopia.rule=Host(`backup.bobparsons.dev`)"
-      - "traefik.http.routers.kopia.entrypoints=https"
-      - "traefik.http.routers.kopia.tls.certresolver=letsencrypt"
-      - "traefik.http.services.kopia.loadbalancer.server.port=51515"
-      - "traefik.http.services.kopia.loadbalancer.server.scheme=h2c"
+      # HTTP UI route
+      - "traefik.http.routers.kopia-ui.rule=Host(`server.bobparsons.dev`)"
+      - "traefik.http.routers.kopia-ui.entrypoints=https"
+      - "traefik.http.routers.kopia-ui.tls.certresolver=letsencrypt"
+      - "traefik.http.services.kopia-ui.loadbalancer.server.port=51515"
+      # GRPC route
+      - "traefik.http.routers.kopia-grpc.rule=Host(`server.bobparsons.dev`) && Headers(`content-type`, `application/grpc`)"
+      - "traefik.http.routers.kopia-grpc.entrypoints=https"
+      - "traefik.http.routers.kopia-grpc.tls.certresolver=letsencrypt"
+      - "traefik.http.services.kopia-grpc.loadbalancer.server.port=51515"
+      - "traefik.http.services.kopia-grpc.loadbalancer.server.scheme=h2c"
       - "traefik.docker.network=traefik"
     networks:
       - traefik
