@@ -34,6 +34,7 @@ services:
       - "traefik.http.routers.kopia.entrypoints=https"
       - "traefik.http.routers.kopia.tls.certresolver=letsencrypt"
       - "traefik.http.services.kopia.loadbalancer.server.port=51515"
+      - "traefik.http.services.kopia.loadbalancer.server.scheme=h2c"
       - "traefik.docker.network=traefik"
     networks:
       - traefik
