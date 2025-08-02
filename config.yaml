@@ -1,0 +1,74 @@
+source_directories:
+  - /home
+  - /etc
+  - /var/log
+  - /var/lib
+  - /opt
+  - /tmp/vm-backup
+
+exclude_patterns:
+  - /home/*/.cache
+  - /home/*/.local/share/Trash
+  - /home/*/snap/*/common/.cache
+  - /var/cache
+  - /var/tmp
+  - /var/log/journal
+  - '*.tmp'
+  - '*.log.*'
+  - '__pycache__'
+  - node_modules
+  - .git/objects
+  - .npm
+  - .yarn/cache
+
+repositories:
+  - path: /mnt/nas-direct/backups/server
+
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 12
+keep_yearly: 1
+
+postgresql_databases:
+  - name: immich_photos
+    hostname: immich_postgres
+    port: 5432
+    username: immich_photos_user
+    password: "{credential file /home/server/backup/credentials/immich-db-password.txt}"
+    format: custom
+    options: "--no-owner --no-privileges"
+
+sqlite_databases:
+  - name: vaultwarden
+    path: /home/server/vaultwarden/vw-data/db.sqlite3
+  - name: kleio
+    path: /home/server/kleio_data/kleio.db
+  - name: ntfy_auth
+    path: /home/server/ntfy/data/auth.db
+  - name: ntfy_cache
+    path: /home/server/ntfy/data/cache.db
+  - name: grafana
+    path: /var/lib/docker/volumes/monitoring_grafana_data/_data/grafana.db
+  - name: drone
+    path: /home/server/drone/var/lib/drone/database.sqlite
+  - name: jellyfin_library
+    path: /home/server/jellyfin/config/data/library.db
+  - name: jellyfin_main
+    path: /home/server/jellyfin/config/data/jellyfin.db
+  - name: filebrowser
+    path: /home/server/files/filebrowser-db/filebrowser.db
+
+commands:
+  - before: action
+    when: [create]
+    run:
+      - curl -X POST http://localhost:8428/snapshot/create
+      - mkdir -p /tmp/vm-backup
+      - docker cp victoriametrics:/victoria-metrics-data/snapshots /tmp/vm-backup/
+  - after: action
+    when: [create]
+    run:
+      - rm -rf /tmp/vm-backup
+      - curl -X POST http://localhost:8428/snapshot/delete_all
+
+zfs:
