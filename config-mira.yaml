@@ -2,33 +2,28 @@ source_directories:
   - /home
   - /etc
   - /var/log
+  - /var/lib
   - /opt
 
 exclude_patterns:
   - /home/*/.cache
   - /home/*/.local/share/Trash
   - /home/*/snap/*/common/.cache
-  - /home/*/.local/share/Steam
-  - /home/*/Downloads/temp
-  - /home/*/Downloads/*.iso
-  - /home/*/Downloads/*.img
   - /var/cache
   - /var/tmp
   - /var/log/journal
-  - "*.tmp"
-  - "*.log.*"
-  - "__pycache__"
+  - '*.tmp'
+  - '*.log.*'
+  - '__pycache__'
   - node_modules
   - .git/objects
   - .npm
   - .yarn/cache
-  - "*.pyc"
-  - "*.pyo"
-  - ".vscode/extensions"
-  - ".local/share/virtualenvs"
-  - ".docker"
-  - target/debug
-  - target/release
+  # SQLite WAL and shared memory files that can cause locks
+  - '*.sqlite-wal'
+  - '*.sqlite3-wal'
+  - '*.sqlite-shm' 
+  - '*.sqlite3-shm'
 
 repositories:
   - path: /mnt/nas/backups/mira
@@ -37,3 +32,14 @@ keep_daily: 7
 keep_weekly: 4
 keep_monthly: 12
 keep_yearly: 1
+
+commands:
+  - after: action
+    when: [create]
+    run:
+      - 'echo "borgmatic_backup_success{config=\"mira\"} 1" > /var/lib/prometheus/node-exporter/borgmatic_mira.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/prometheus/node-exporter/borgmatic_mira.prom'
+  - after: error
+    run:
+      - 'echo "borgmatic_backup_success{config=\"mira\"} 0" > /var/lib/prometheus/node-exporter/borgmatic_mira.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/prometheus/node-exporter/borgmatic_mira.prom'
