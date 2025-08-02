@@ -2,7 +2,6 @@ source_directories:
   - /home
   - /etc
   - /var/log
-  - /var/lib
   - /opt
 
 exclude_patterns:
@@ -19,6 +18,17 @@ exclude_patterns:
   - .git/objects
   - .npm
   - .yarn/cache
+  - /home/*/.local/share/Steam
+  - /home/*/Downloads/temp
+  - /home/*/Downloads/*.iso
+  - /home/*/Downloads/*.img
+  - "*.pyc"
+  - "*.pyo"
+  - ".vscode/extensions"
+  - ".local/share/virtualenvs"
+  - ".docker"
+  - target/debug
+  - target/release
   # SQLite WAL and shared memory files that can cause locks
   - '*.sqlite-wal'
   - '*.sqlite3-wal'

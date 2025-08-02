@@ -13,13 +13,14 @@ Setting up borgmatic for automated backups across multiple computers.
 ### XPS17
 - **Config**: `config-xps17.yaml`
 - **Repository**: `/mnt/nas/backups/xps17` (unencrypted)
-- **Type**: Filesystem backup only
+- **Type**: Filesystem backup only with intelligent scheduling
+- **Scheduling**: Smart backup script with conditions checking
 - **Status**: ✅ Complete
 
 ### Mira
 - **Config**: `config-mira.yaml`
 - **Repository**: `/mnt/nas/backups/mira` (unencrypted)
-- **Type**: Filesystem backup only
+- **Type**: Filesystem backup only (desktop system)
 - **Status**: ✅ Complete
 
 ## Common Configuration
@@ -28,18 +29,34 @@ Setting up borgmatic for automated backups across multiple computers.
 - **Scheduling**: Cron jobs (daily backups)
 
 ## Source Directories
+### Server
 - `/home` - User data
-- `/etc` - System configuration
+- `/etc` - System configuration  
 - `/var/log` - System logs
 - `/var/lib` - Application data and databases
 - `/opt` - Third-party software
 
+### Desktop Systems (XPS17, Mira)
+- `/home` - User data
+- `/etc` - System configuration
+- `/var/log` - System logs  
+- `/opt` - Third-party software
+
 ## Exclusion Patterns
+### Common Exclusions
 - Cache directories (`/home/*/.cache`, `/var/cache`)
 - Temporary files (`/var/tmp`, `*.tmp`)
 - Development artifacts (`node_modules`, `__pycache__`, `.git/objects`)
 - Package manager caches (`.npm`, `.yarn/cache`)
 - System journals and log rotations
+
+### Desktop-Specific Exclusions
+- Gaming: Steam directories (`/home/*/.local/share/Steam`)
+- Downloads: ISO files, temp directories (`*.iso`, `*.img`, `/Downloads/temp`)
+- Development: Python bytecode (`*.pyc`, `*.pyo`), Rust targets (`target/debug`, `target/release`)
+- IDEs: VS Code extensions (`.vscode/extensions`), Python virtualenvs (`.local/share/virtualenvs`)
+- Containers: Docker directories (`.docker`)
+- SQLite: WAL and shared memory files (`*.sqlite-wal`, `*.sqlite3-wal`, `*.sqlite-shm`, `*.sqlite3-shm`)
 
 ## Installation Notes
 - borgmatic installed via pipx for user account
@@ -64,22 +81,48 @@ Setting up borgmatic for automated backups across multiple computers.
 - **Borgmatic Native**: Uses built-in database dump support + VM snapshots
 
 ## Scheduling Setup
-All computers use cron for automated daily backups:
 
+### Server
+Traditional cron job for reliable server environment:
 ```bash
 # Add to root's crontab (sudo crontab -e)
-# Server (with database backups)
 0 2 * * * /home/server/.local/bin/borgmatic --config /home/server/backup/config.yaml
+```
 
-# XPS17 (filesystem only)  
-0 2 * * * /home/user/.local/bin/borgmatic --config /path/to/config-xps17.yaml
+### XPS17 (Laptop)
+Smart backup script with intelligent condition checking:
+```bash
+# Smart backup script: /home/bobparsons/Development/backup/smart-backup.sh
+# Checks: NAS connectivity, battery level (>30% or AC), last backup time (>3h), system load
+# Add to root's crontab (sudo crontab -e):
+0 * * * * /home/bobparsons/Development/backup/smart-backup.sh >/dev/null 2>&1
+```
 
-# Mira (filesystem only)
+### Mira (Desktop)
+Traditional cron job:
+```bash
+# Add to root's crontab (sudo crontab -e)
 0 2 * * * /home/bobparsons/.local/bin/borgmatic --config /home/bobparsons/Development/backup/config-mira.yaml
 ```
 
+## Monitoring
+All systems generate Prometheus metrics for backup monitoring:
+
+### Metrics Generated
+- `borgmatic_backup_success{config="hostname"}` - 1 for success, 0 for failure  
+- `borgmatic_backup_last_run_timestamp` - Unix timestamp of last backup attempt
+
+### Metric Locations
+- **XPS17**: `/home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom`
+- **Mira**: `/var/lib/prometheus/node-exporter/borgmatic_mira.prom`
+- **Server**: Via borgmatic command hooks (location TBD)
+
+### Integration
+Configure node_exporter textfile collector to scrape these metrics for alerting on backup failures and stale backups.
+
 ## Next Steps
 - [ ] Test restore procedures
+- [ ] Set up monitoring alerts for backup failures
 
 ## Common Commands
 ```bash
