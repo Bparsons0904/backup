@@ -1,13 +1,31 @@
 # Borgmatic Backup Setup
 
 ## Project Overview
-Setting up borgmatic for automated backups with ZFS integration.
+Setting up borgmatic for automated backups across multiple computers.
 
-## Current Configuration
-- **Config Location**: `/home/server/backup/config.yaml` (local, version controlled)
+## Computers Configured
+### Server
+- **Config**: `config.yaml` 
 - **Repository**: `/mnt/nas-direct/backups/server` (unencrypted)
+- **Features**: ZFS integration, database backups
+- **Status**: ✅ Complete
+
+### XPS17
+- **Config**: `config-xps17.yaml`
+- **Repository**: `/mnt/nas/backups/xps17` (unencrypted)
+- **Type**: Filesystem backup only
+- **Status**: ✅ Complete
+
+### Mira
+- **Config**: `config-mira.yaml`
+- **Repository**: `/mnt/nas/backups/mira` (unencrypted)
+- **Type**: Filesystem backup only
+- **Status**: ✅ Complete
+
+## Common Configuration
 - **Retention**: 7 daily, 4 weekly, 12 monthly, 1 yearly
-- **ZFS Integration**: Enabled (automatic dataset discovery)
+- **Installation**: borgmatic via pipx (version 2.0.7)
+- **Scheduling**: Cron jobs (daily backups)
 
 ## Source Directories
 - `/home` - User data
@@ -45,28 +63,45 @@ Setting up borgmatic for automated backups with ZFS integration.
 - **Security**: Only credential files are gitignored, config structure visible
 - **Borgmatic Native**: Uses built-in database dump support + VM snapshots
 
+## Scheduling Setup
+All computers use cron for automated daily backups:
+
+```bash
+# Add to root's crontab (sudo crontab -e)
+# Server (with database backups)
+0 2 * * * /home/server/.local/bin/borgmatic --config /home/server/backup/config.yaml
+
+# XPS17 (filesystem only)  
+0 2 * * * /home/user/.local/bin/borgmatic --config /path/to/config-xps17.yaml
+
+# Mira (filesystem only)
+0 2 * * * /home/bobparsons/.local/bin/borgmatic --config /home/bobparsons/Development/backup/config-mira.yaml
+```
+
 ## Next Steps
-- [ ] Test complete database backup configuration
-- [ ] Set up automated scheduling (cron/systemd)
 - [ ] Test restore procedures
 
-## Commands
+## Common Commands
 ```bash
-# Generate config locally
-borgmatic config generate --destination ./config.yaml
+# Generate config template
+borgmatic config generate --destination ./config-hostname.yaml
 
 # Test configuration (requires sudo for system files)
-sudo /home/server/.local/bin/borgmatic --config ./config.yaml --dry-run
+sudo /path/to/.local/bin/borgmatic --config ./config-hostname.yaml --dry-run
 
-# Run backup (requires sudo for system files)
-sudo /home/server/.local/bin/borgmatic --config ./config.yaml
+# Run backup manually (requires sudo for system files)
+sudo /path/to/.local/bin/borgmatic --config ./config-hostname.yaml
 
-# Initialize repository (done)
-sudo borg init --encryption=none /mnt/nas-direct/backups/server
+# Initialize repository (unencrypted)
+sudo borg init --encryption=none /mnt/nas/backups/hostname
 
 # Verify repository integrity
-sudo borg check /mnt/nas-direct/backups/server
+sudo borg check /mnt/nas/backups/hostname
 
 # List available archives
-sudo borg list /mnt/nas-direct/backups/server
+sudo borg list /mnt/nas/backups/hostname
+
+# Setup cron job
+sudo crontab -e
+# Add: 0 2 * * * /path/to/.local/bin/borgmatic --config /path/to/config-hostname.yaml
 ```
