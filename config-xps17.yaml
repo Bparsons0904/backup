@@ -1,0 +1,40 @@
+source_directories:
+  - /home
+  - /etc
+  - /var/log
+  - /opt
+
+exclude_patterns:
+  - /home/*/.cache
+  - /home/*/.local/share/Trash
+  - /home/*/snap/*/common/.cache
+  - /home/*/.local/share/Steam
+  - /home/*/Downloads/temp
+  - /home/*/Downloads/*.iso
+  - /home/*/Downloads/*.img
+  - /var/cache
+  - /var/tmp
+  - /var/log/journal
+  - "*.tmp"
+  - "*.log.*"
+  - "__pycache__"
+  - node_modules
+  - .git/objects
+  - .npm
+  - .yarn/cache
+  - "*.pyc"
+  - "*.pyo"
+  - ".vscode/extensions"
+  - ".local/share/virtualenvs"
+  - ".docker"
+  - target/debug
+  - target/release
+
+repositories:
+  - path: /mnt/nas/backups/xps17
+
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 12
+keep_yearly: 1
+
