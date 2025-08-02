@@ -1,0 +1,54 @@
+# Filesystem-only backup configuration with ZFS snapshots
+# No database hooks, no read_special
+
+source_directories:
+  - /home
+  - /etc
+  - /var/log
+  - /var/lib
+  - /opt
+
+exclude_patterns:
+  - /home/*/.cache
+  - /home/*/.local/share/Trash
+  - /home/*/snap/*/common/.cache
+  - /var/cache
+  - /var/tmp
+  - /var/log/journal
+  - '*.tmp'
+  - '*.log.*'
+  - '__pycache__'
+  - node_modules
+  - .git/objects
+  - .npm
+  - .yarn/cache
+  # SQLite WAL and shared memory files that can cause locks
+  - '*.sqlite-wal'
+  - '*.sqlite3-wal'
+  - '*.sqlite-shm' 
+  - '*.sqlite3-shm'
+  # Docker overlay filesystem and special device files
+  - '/var/lib/docker/overlay2'
+  - '/var/lib/docker/volumes/*/backingFsBlockDev'
+
+repositories:
+  - path: /mnt/nas-direct/backups/server-filesystem
+
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 12
+keep_yearly: 1
+
+commands:
+  - after: action
+    when: [create]
+    run:
+      - 'echo "borgmatic_backup_success{config=\"filesystem\"} 1" > /var/lib/node_exporter/textfile_collector/borgmatic_filesystem.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borgmatic_filesystem.prom'
+  - after: error
+    run:
+      - 'echo "borgmatic_backup_success{config=\"filesystem\"} 0" > /var/lib/node_exporter/textfile_collector/borgmatic_filesystem.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borgmatic_filesystem.prom'
+
+# ZFS snapshots for consistent filesystem state
+zfs:

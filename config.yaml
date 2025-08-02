@@ -20,9 +20,19 @@ exclude_patterns:
   - .git/objects
   - .npm
   - .yarn/cache
+  # SQLite WAL and shared memory files that can cause locks
+  - '*.sqlite-wal'
+  - '*.sqlite3-wal'
+  - '*.sqlite-shm' 
+  - '*.sqlite3-shm'
+  # Docker overlay filesystem and special device files
+  - '/var/lib/docker/overlay2'
+  - '/var/lib/docker/volumes/*/backingFsBlockDev'
 
 repositories:
   - path: /mnt/nas-direct/backups/server
+
+read_special: true
 
 keep_daily: 7
 keep_weekly: 4
@@ -31,32 +41,20 @@ keep_yearly: 1
 
 postgresql_databases:
   - name: immich_photos
-    hostname: immich_postgres
+    hostname: localhost
     port: 5432
     username: immich_photos_user
     password: "{credential file /home/server/backup/credentials/immich-db-password.txt}"
     format: custom
     options: "--no-owner --no-privileges"
+    pg_dump_command: docker exec immich_postgres pg_dump
+    pg_restore_command: docker exec immich_postgres pg_restore
+    psql_command: docker exec immich_postgres psql
 
-sqlite_databases:
-  - name: vaultwarden
-    path: /home/server/vaultwarden/vw-data/db.sqlite3
-  - name: kleio
-    path: /home/server/kleio_data/kleio.db
-  - name: ntfy_auth
-    path: /home/server/ntfy/data/auth.db
-  - name: ntfy_cache
-    path: /home/server/ntfy/data/cache.db
-  - name: grafana
-    path: /var/lib/docker/volumes/monitoring_grafana_data/_data/grafana.db
-  - name: drone
-    path: /home/server/drone/var/lib/drone/database.sqlite
-  - name: jellyfin_library
-    path: /home/server/jellyfin/config/data/library.db
-  - name: jellyfin_main
-    path: /home/server/jellyfin/config/data/jellyfin.db
-  - name: filebrowser
-    path: /home/server/files/filebrowser-db/filebrowser.db
+# Using file-level backup instead of database dumps to avoid WAL lock issues
+# sqlite_databases:
+#   - name: vaultwarden
+#     path: /home/server/vaultwarden/vw-data/db.sqlite3
 
 commands:
   - before: action
@@ -71,4 +69,5 @@ commands:
       - rm -rf /tmp/vm-backup
       - curl -X POST http://localhost:8428/snapshot/delete_all
 
-zfs:
+# Disabled ZFS snapshots due to Docker overlay filesystem conflicts
+# zfs:
