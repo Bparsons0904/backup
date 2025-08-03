@@ -9,7 +9,7 @@ set -euo pipefail
 CONFIG_FILE="/home/bobparsons/Development/backup/config-xps17.yaml"
 BORGMATIC_PATH="/home/bobparsons/.local/bin/borgmatic"
 LOG_FILE="/var/log/smart-backup.log"
-METRICS_FILE="/home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom"
+METRICS_FILE="/var/lib/prometheus/node-exporter/borgmatic_xps17.prom"
 BACKUP_REPO="/mnt/nas/backups/xps17"
 
 # Thresholds

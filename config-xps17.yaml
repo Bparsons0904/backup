@@ -47,10 +47,10 @@ commands:
   - after: action
     when: [create]
     run:
-      - 'echo "borgmatic_backup_success{config=\"xps17\"} 1" > /home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom'
-      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom'
+      - 'echo "borgmatic_backup_success{config=\"xps17\"} 1" > /var/lib/prometheus/node-exporter/borgmatic_xps17.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/prometheus/node-exporter/borgmatic_xps17.prom'
   - after: error
     run:
-      - 'echo "borgmatic_backup_success{config=\"xps17\"} 0" > /home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom'
-      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom'
+      - 'echo "borgmatic_backup_success{config=\"xps17\"} 0" > /var/lib/prometheus/node-exporter/borgmatic_xps17.prom'
+      - 'echo "borgmatic_backup_last_run_timestamp $(date +%s)" >> /var/lib/prometheus/node-exporter/borgmatic_xps17.prom'
 

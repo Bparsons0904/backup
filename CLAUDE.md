@@ -113,7 +113,7 @@ All systems generate Prometheus metrics for backup monitoring:
 - `borgmatic_backup_last_run_timestamp` - Unix timestamp of last backup attempt
 
 ### Metric Locations
-- **XPS17**: `/home/bobparsons/Development/backup/metrics/borgmatic_xps17.prom`
+- **XPS17**: `/var/lib/prometheus/node-exporter/borgmatic_xps17.prom`
 - **Mira**: `/var/lib/prometheus/node-exporter/borgmatic_mira.prom`
 - **Server**: Via borgmatic command hooks (location TBD)
 
