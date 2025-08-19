@@ -73,12 +73,14 @@ Setting up borgmatic for automated backups across multiple computers.
 
 ## Database Integration
 - ✅ PostgreSQL backup configured for Immich (1 database)
+- ✅ PostgreSQL instance-level backup configured for postgres18 container (all databases)
 - ✅ SQLite backups configured for all services (9 databases)
   - Vaultwarden, Kleio, Ntfy (auth/cache), Grafana, Drone, Jellyfin (library/main), FileBrowser
 - ✅ VictoriaMetrics TSDB backup via snapshot API
 - **Credentials**: File-based using `{credential file}` syntax  
 - **Security**: Only credential files are gitignored, config structure visible
 - **Borgmatic Native**: Uses built-in database dump support + VM snapshots
+- **PostgreSQL Strategy**: Instance-level backup using `pg_dumpall` captures all databases, users, roles, and permissions automatically
 
 ## Scheduling Setup
 

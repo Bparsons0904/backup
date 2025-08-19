@@ -50,6 +50,16 @@ postgresql_databases:
     pg_dump_command: docker exec immich_postgres pg_dump
     pg_restore_command: docker exec immich_postgres pg_restore
     psql_command: docker exec immich_postgres psql
+  - name: all
+    hostname: localhost
+    port: 5432
+    username: postgres
+    password: "{credential file /home/server/backup/credentials/postgres-admin-password.txt}"
+    format: custom
+    options: "--no-owner --no-privileges"
+    pg_dump_command: docker exec postgres18 pg_dumpall
+    pg_restore_command: docker exec postgres18 psql
+    psql_command: docker exec postgres18 psql
 
 # Using file-level backup instead of database dumps to avoid WAL lock issues
 # sqlite_databases:
